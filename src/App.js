@@ -16,6 +16,7 @@ function splitTable(table){
 
     return compt
 }
+const byValue = (a,b) => b.poids - a.poids;
 function htmlToString(str){
   let res=str.replace(/&eacute;/ig,"é")
              .replace(/&acirc;/ig,"â")
@@ -162,7 +163,7 @@ function App() {
                 let f = tab.find(e=>e.element===element)
                 if(f){}
                 else{
-                 tab.push({id:element.descriptions+element.title+element.keywords, element:element, click:0})
+                 tab.push({poids:element.body[key],id:element.descriptions+element.title+element.keywords, element:element, click:0})
                 }
               }
             }
@@ -181,7 +182,7 @@ function App() {
                 let f = tab.find(e=>e.element===element)
                 if(f){}
                 else{
-                 tab.push({id:element.descriptions+element.title+element.keywords, element:element, click:0})
+                 tab.push({poids:element.body[key],id:element.descriptions+element.title+element.keywords, element:element, click:0})
                 }
               }
             }
@@ -210,7 +211,7 @@ function App() {
               let f = tab.find(e=>e.element===element)
               if(f){}
               else{
-               tab.push({id:element.descriptions+element.title+element.keywords, element:element, click:0})
+               tab.push({poids:element.body[key],id:element.descriptions+element.title+element.keywords, element:element, click:0})
               } 
             }
           }
@@ -231,14 +232,14 @@ function App() {
                 let f = tab.find(e=>e.element===element)
                 if(f){}
                 else{
-                 tab.push({id:element.descriptions+element.title+element.keywords, element:element, click:0})
+                 tab.push({poids:element.body[key],id:element.descriptions+element.title+element.keywords, element:element, click:0})
                 }
               }           
           }
         }
-        setSelectedFiles(tab)
-        console.log(SelectedFiles)
-        setSelectedFilesSplit(tab.slice(0,3))
+        const sorted = [...tab].sort(byValue);
+        setSelectedFiles(sorted)
+        setSelectedFilesSplit(sorted.slice(0,3))
       });     
     });
    }
@@ -321,6 +322,9 @@ function App() {
        &nbsp;
        &ensp;
         <button className="myButton" style={{color:"black"}} data-val={val.id}  onClick={wordCloudF}>{text} nuage de mots</button>
+       &nbsp;
+       &ensp;
+       <h3 style={{color:"green"}}>poids du document ==> {val.poids}</h3>
         <br/><br/><br/>
        </div>
        {fileWordCloudShow.includes(val.id)?

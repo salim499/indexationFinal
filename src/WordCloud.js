@@ -15,7 +15,7 @@ function App(props) {
       <ReactWordcloud
         words={props.word}
         options={options}
-        style={{ background: "rgba(0,0,0,1)", opacity: "1" }}
+        style={{ background: "rgba(255,255,255,1)", opacity: "1" }}
       />
     </Modal.Dialog>
   );
