@@ -126,7 +126,8 @@ function App() {
    const [fileWordCloudShow, setFileWordCloudShow]=useState([])
    const [color, setColor]=useState("green")
    const [text, setText]=useState("ouvrir ")
-   const [mode, setMode]=useState()
+   const [mode, setMode]=useState("Includes")
+   const [colorMode, setColorMode]=useState(["#000000"," #ffffff"," #ffffff"," #ffffff"])
    useEffect(()=>{
      axios.get(`https://indexationphp.herokuapp.com/`)
      .then(data=>{
@@ -206,8 +207,11 @@ function App() {
               }
             }
             if(word.toLowerCase().length-count<3){    
-              console.log(word.toLowerCase().length,count)  
-              tab.push({id:element.descriptions+element.title+element.keywords, element:element, click:0});
+              let f = tab.find(e=>e.element===element)
+              if(f){}
+              else{
+               tab.push({id:element.descriptions+element.title+element.keywords, element:element, click:0})
+              } 
             }
           }
           else if(mode==="SemiIncludes"){
@@ -224,8 +228,11 @@ function App() {
               secondPartR===secondPartW||
               firstPartR===firstPartW
               ){
-                console.log(key)
-                tab.push({id:element.descriptions+element.title+element.keywords, element:element, click:0});                
+                let f = tab.find(e=>e.element===element)
+                if(f){}
+                else{
+                 tab.push({id:element.descriptions+element.title+element.keywords, element:element, click:0})
+                }
               }           
           }
         }
@@ -258,8 +265,16 @@ function App() {
    }
 
    function setModeF(e){
-     console.log(e.target.dataset.mode)
       setMode(e.target.dataset.mode)
+      if(e.target.dataset.mode==="Includes"){
+        setColorMode(["#000000","#ffffff","#ffffff","#ffffff"])
+      } else if(e.target.dataset.mode==="SemiIncludes"){
+        setColorMode(["#ffffff","#000000","#ffffff","#ffffff"])       
+      } else if(e.target.dataset.mode==="SemiChar"){
+        setColorMode(["#ffffff","#ffffff","#000000","#ffffff"])
+      } else if(e.target.dataset.mode==="Char"){
+        setColorMode(["#ffffff","#ffffff","#ffffff","#000000"])
+      }
    }
    function clickF(e){
      let tab=[]
@@ -274,10 +289,10 @@ function App() {
     <div className="App">
             <nav>
         <ul id="nav_bar"> 
-          <li  id="sign_in" className="nav-links"><a onClick={setModeF} data-mode="Includes" href="#">Mode strict</a></li> 
-          <li  id="sign_in" className="nav-links"><a onClick={setModeF} data-mode="SemiIncludes" href="#">Mode SemiIncludes</a></li>
-          <li  id="sign_in" className="nav-links"><a onClick={setModeF} data-mode="SemiChar" href="#">Mode SemiChar</a></li>
-          <li  id="sign_in" className="nav-links"><a onClick={setModeF} data-mode="Char" href="#">Mode Char</a></li>
+          <li id="sign_in" className="nav-links"><a style={{color:colorMode[0]}} onClick={setModeF} data-mode="Includes" href="#">Mode strict</a></li> 
+          <li id="sign_in" className="nav-links"><a style={{color:colorMode[1]}} onClick={setModeF} data-mode="SemiIncludes" href="#">Mode SemiIncludes</a></li>
+          <li id="sign_in" className="nav-links"><a style={{color:colorMode[2]}} onClick={setModeF} data-mode="SemiChar" href="#">Mode SemiChar</a></li>
+          <li id="sign_in" className="nav-links"><a style={{color:colorMode[3]}} onClick={setModeF} data-mode="Char" href="#">Mode Char</a></li>
         </ul>  
       </nav>
         <img src={logo} className="App-logo" alt="logo" />
@@ -311,8 +326,8 @@ function App() {
        {fileWordCloudShow.includes(val.id)?
         <TransformWrapper>
           <TransformComponent>
-       <div className="secondPart">
-       <Wordcloud word={fileWordCloud}></Wordcloud>
+       <div className="secondPart" style={{marginTop:"8%"}}>
+       <Wordcloud style={{marginTop:"5%"}} word={fileWordCloud}></Wordcloud>
        </div> 
          </TransformComponent>
        </TransformWrapper>
@@ -326,6 +341,7 @@ function App() {
           <React.Fragment>
          <a onClick={paginationNumber}
          data-val={val}
+         className="App-link"
          href="#"
          rel="noopener noreferrer"
        >
