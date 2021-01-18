@@ -121,7 +121,7 @@ function App() {
 
    const [state, setState]=useState([])
    const [SelectedFiles, setSelectedFiles]=useState([])
-   const [SelectedFilesSplit, setSelectedFilesSplit]=useState([])
+   let [SelectedFilesSplit, setSelectedFilesSplit]=useState([])
    const [fileWordCloud,setFileWordCloud]=useState([])
    const [fileWordCloudShow, setFileWordCloudShow]=useState([])
    const [color, setColor]=useState("green")
@@ -136,7 +136,6 @@ function App() {
            for(const key2 in element.body){
              if (key===key2){   
                element.head[key]=element.head[key]+element.body[key2]
-              //console.log(element.file,key,element.head[key],key2,element.body[key2])
              }
            }
          }
@@ -147,6 +146,7 @@ function App() {
    },[])
 
    function searchFunction(e){
+     console.log(mode)
     setSelectedFiles([])
     let inputWords=inputSearch.current.value.split(" ")
     let words=inputWords.filter(word=>word.length>0)
@@ -156,17 +156,18 @@ function App() {
         for(const key in element.body){
           /*/////////////////////////////////// */
           if(mode==="Includes"){
-            if(key===word.toLowerCase()){
-              console.log(key, word.toLowerCase())
-              let f = tab.find(e=>e.element===element)
-              if(f){}
-              else{
-               tab.push({id:element.descriptions+element.title+element.keywords, element:element})
+            if(key.includes(word.toLowerCase()) || word.toLowerCase().includes(key)){
+              if(Math.abs(key.length-word.toLowerCase().length)<3){
+                let f = tab.find(e=>e.element===element)
+                if(f){}
+                else{
+                 tab.push({id:element.descriptions+element.title+element.keywords, element:element, click:0})
+                }
               }
             }
           }
          /*/////////////////////////////////// */ 
-          else {
+          else if(mode==="Char"){
             let count=0
             for(let i = 0; i < word.toLowerCase().length; i++){
                 if(key.includes(word.toLowerCase().charAt(i))){
@@ -174,13 +175,58 @@ function App() {
                 }
             }
             if(Math.abs(word.toLowerCase().length-count)<1){
-              console.log(word.toLowerCase().length,count)
-              let f = tab.find(e=>e.element===element)
-              if(f){}
-              else{
-               tab.push({id:element.descriptions+element.title+element.keywords, element:element})
+              if(Math.abs(key.length-count)<3){
+                console.log(word.toLowerCase().length,count)
+                let f = tab.find(e=>e.element===element)
+                if(f){}
+                else{
+                 tab.push({id:element.descriptions+element.title+element.keywords, element:element, click:0})
+                }
               }
             }
+          }
+          else if(mode==="SemiChar"){
+            let firstPartR = word.toLowerCase().substr(0, word.toLowerCase().length / 2)  
+            // get the second part of word request
+            let secondPartR = word.toLowerCase().substr(word.toLowerCase().length / 2, word.toLowerCase().length)
+            
+            let firstPartW = key.substr(0, key.length / 2)  
+            // get the second part of word bdd
+            let secondPartW = key.substr(key.length / 2, key.length)
+
+            let count=0
+            for (let i = 0; i < firstPartR.length; i++) {
+              if(firstPartW.includes(firstPartR.charAt(i))){
+              count=count+1
+              }
+            }
+            for (let i = 0; i < secondPartR.length; i++) {
+              if(secondPartW.includes(secondPartR.charAt(i))){
+                count=count+1
+              }
+            }
+            if(word.toLowerCase().length-count<3){    
+              console.log(word.toLowerCase().length,count)  
+              tab.push({id:element.descriptions+element.title+element.keywords, element:element, click:0});
+            }
+          }
+          else if(mode==="SemiIncludes"){
+            let firstPartR = word.toLowerCase().substr(0, word.toLowerCase().length / 2)  
+            // get the second part of word request
+            let secondPartR = word.toLowerCase().substr(word.toLowerCase().length / 2, word.toLowerCase().length)
+            
+            let firstPartW = key.substr(0, key.length / 2)  
+            // get the second part of word bdd
+            let secondPartW = key.substr(key.length / 2, key.length)
+            if(
+              firstPartW===firstPartR||
+              secondPartW===secondPartR||
+              secondPartR===secondPartW||
+              firstPartR===firstPartW
+              ){
+                console.log(key)
+                tab.push({id:element.descriptions+element.title+element.keywords, element:element, click:0});                
+              }           
           }
         }
         setSelectedFiles(tab)
@@ -212,12 +258,21 @@ function App() {
    }
 
    function setModeF(e){
+     console.log(e.target.dataset.mode)
       setMode(e.target.dataset.mode)
+   }
+   function clickF(e){
+     let tab=[]
+     SelectedFilesSplit.forEach(file => {
+       tab.push(file)
+     });
+     let f=tab.find(el=>el.element.title===e.target.dataset.val)
+     f.click++
+     setSelectedFilesSplit(tab) 
    }
   return (
     <div className="App">
             <nav>
-      
         <ul id="nav_bar"> 
           <li  id="sign_in" className="nav-links"><a onClick={setModeF} data-mode="Includes" href="#">Mode strict</a></li> 
           <li  id="sign_in" className="nav-links"><a onClick={setModeF} data-mode="SemiIncludes" href="#">Mode SemiIncludes</a></li>
@@ -240,13 +295,13 @@ function App() {
      {SelectedFilesSplit.map((val,key)=>(
         <div className="g">
        <div className="firstPart">
-        <h4 className="title">{htmlToString(val.element.title)}</h4>
+        <h4 className="title"><a data-val={val.element.title} onClick={clickF} target="_blank" href={"https://salim499.github.io/dataVizFinalRender/CommentCaMarche/"+val.element.file.split("/")[val.element.file.split.length+1]}>{htmlToString(val.element.title)}</a></h4>
         <p className="p">{val.element.descriptions?htmlToString((val.element.descriptions+val.element.keywords).slice(0,300)):htmlToString((val.element.keywords).slice(0,300))}</p>
         <br/>
         <StarRatingComponent
                              name="rate1"
                              starCount={5}
-                             value={5}
+                             value={val.click}
                            />                              
        &nbsp;
        &ensp;
